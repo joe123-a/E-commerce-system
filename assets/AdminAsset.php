@@ -7,7 +7,7 @@ use yii\web\AssetBundle;
 class AdminAsset extends AssetBundle
 {
     public $basePath = '@webroot';
-    public $baseUrl = '@web/web';
+    public $baseUrl = '@web';
     
     public $css = [
         'https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css',

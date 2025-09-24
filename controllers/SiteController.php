@@ -8,6 +8,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Products;
 
 class SiteController extends Controller
 {
@@ -49,44 +50,32 @@ class SiteController extends Controller
         ];
     }
 
+   
+
     public function actionIndex()
     {
-        // $products = [
-            // (object)[
-            //     'id' => 1,
-            //     'name' => 'Smartphone XYZ',
-            //     'price' => 299.99,
-            //     'image' => Yii::getAlias('@web/img/product-1.jpg'),
-            //     'rating' => 4.5,
-            // ],
-            // (object)[
-            //     'id' => 2,
-            //     'name' => 'Laptop ABC',
-            //     'price' => 799.99,
-            //     'image' => Yii::getAlias('@web/img/product-2.jpg'),
-            //     'rating' => 4.8,
-            // ],
-            // (object)[
-            //     'id' => 3,
-            //     'name' => 'Wireless Headphones',
-            //     'price' => 99.99,
-            //     'image' => Yii::getAlias('@web/img/product-3.jpg'),
-            //     'rating' => 4.2,
-            // ],
-            // (object)[
-            //     'id' => 4,
-            //     'name' => 'Smart TV 4K',
-            //     'price' => 499.99,
-            //     'image' => Yii::getAlias('@web/img/product-4.jpg'),
-            //     'rating' => 4.7,
-            // ],
-            // Add more products as needed
-        // ];
+        // Fetch all products
+        $allProducts = Products::find()->with('category')->all();
 
-        return $this->render('index'
-            
-        );
+        // Fetch new arrivals (is_new = 1)
+        $newArrivals = Products::find()->with('category')->where(['is_new' => 1])->all();
+
+        // Fetch featured products (is_featured = 1)
+        $featuredProducts = Products::find()->with('category')->where(['is_featured' => 1])->all();
+
+        // Fetch top selling products (is_top_selling = 1)
+        $topSellingProducts = Products::find()->with('category')->where(['is_top_selling' => 1])->all();
+
+        return $this->render('index', [
+            'allProducts' => $allProducts,
+            'newArrivals' => $newArrivals,
+            'featuredProducts' => $featuredProducts,
+            'topSellingProducts' => $topSellingProducts,
+        ]);
     }
+
+    
+
 
     public function actionLogin()
     {
@@ -154,5 +143,16 @@ class SiteController extends Controller
     }
     public function actionBestseller(){
         return $this->render('bestseller');
+    }
+    public function actionProduct(){
+        $model =new Products();
+        return $this->render('product');
+    }
+    public function actionCategory(){
+        return $this->render('category');
+
+    }
+    public function actionProductitem(){
+        return $this->render('product_item');
     }
 }

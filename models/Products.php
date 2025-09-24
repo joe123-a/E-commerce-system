@@ -4,6 +4,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
+use app\models\Categories;
 
 /**
  * This is the model class for table "products".
@@ -11,7 +12,7 @@ use yii\web\UploadedFile;
  * @property int $id
  * @property string $name
  * @property string $model
- * @property string $category
+ * @property int $category_id
  * @property string|null $description
  * @property float $price
  * @property float|null $discount_price
@@ -28,48 +29,39 @@ use yii\web\UploadedFile;
  */
 class Products extends ActiveRecord
 {
-    // Public property for handling file uploads
     public $imageFile;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'products';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
-            [['name', 'model', 'category', 'price', 'stock_quantity'], 'required'],
+            [['name', 'model', 'category_id', 'price', 'stock_quantity'], 'required'],
             [['description'], 'string'],
             [['price', 'discount_price', 'rating'], 'number', 'min' => 0],
             [['rating'], 'number', 'max' => 5],
+            [['category_id', 'stock_quantity'], 'integer', 'min' => 0],
             [['is_new', 'is_sale', 'is_featured', 'is_top_selling'], 'boolean'],
-            [['stock_quantity'], 'integer', 'min' => 0],
             [['created_at', 'updated_at'], 'safe'],
             [['name', 'image_path'], 'string', 'max' => 255],
-            [['model', 'category'], 'string', 'max' => 100],
+            [['model'], 'string', 'max' => 100],
             [['discount_price', 'image_path'], 'default', 'value' => null],
             [['rating'], 'default', 'value' => 0.0],
             [['imageFile'], 'file', 'extensions' => ['png', 'jpg', 'jpeg'], 'maxSize' => 1024 * 1024 * 2], // 2MB max
+            [['category_id'], 'exist', 'targetClass' => Categories::class, 'targetAttribute' => ['category_id' => 'id']],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
             'name' => 'Product Name',
             'model' => 'Model Number',
-            'category' => 'Category',
+            'category_id' => 'Category',
             'description' => 'Description',
             'price' => 'Price ($)',
             'discount_price' => 'Discount Price ($)',
@@ -84,5 +76,10 @@ class Products extends ActiveRecord
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    public function getCategory()
+    {
+        return $this->hasOne(Categories::class, ['id' => 'category_id']);
     }
 }

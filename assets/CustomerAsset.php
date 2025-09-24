@@ -4,7 +4,7 @@ use yii\web\AssetBundle;
 class CustomerAsset extends AssetBundle
 {
     public $basePath = '@webroot';
-    public $baseUrl = '@web/web';
+    public $baseUrl = '@web';
     public $css = [
         'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap',
         'https://use.fontawesome.com/releases/v5.15.4/css/all.css',
