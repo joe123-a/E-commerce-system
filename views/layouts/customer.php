@@ -9,7 +9,7 @@ $this->beginPage();
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title><?= Html::encode($this->title) ?> - Electro</title>
+    <title><?= Html::encode($this->title) ?> - Service Cops</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">

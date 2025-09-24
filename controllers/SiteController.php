@@ -6,9 +6,12 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
+use yii\web\NotFoundHttpException;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\Products;
+use app\models\Categories;
+use yii\data\ActiveDataProvider;
 
 class SiteController extends Controller
 {
@@ -144,15 +147,55 @@ class SiteController extends Controller
     public function actionBestseller(){
         return $this->render('bestseller');
     }
-    public function actionProduct(){
-        $model =new Products();
-        return $this->render('product');
-    }
-    public function actionCategory(){
-        return $this->render('category');
+    public function actionProduct($id)
+    {
+        $model = Products::find()->with('category')->where(['id' => $id])->one();
+        if (!$model) {
+            throw new NotFoundHttpException('Product not found.');
+        }
 
+        return $this->render('product', [
+            'model' => $model,
+        ]);
     }
-    public function actionProductitem(){
-        return $this->render('product_item');
+
+       public function actionCategory($id = null)
+    {
+        if ($id === null) {
+            // If no category ID is provided, show all categories
+            $categories = Categories::find()->all();
+            return $this->render('categories', [
+                'categories' => $categories,
+            ]);
+        }
+
+        $category = Categories::findOne($id);
+        if (!$category) {
+            throw new NotFoundHttpException('Category not found.');
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => Products::find()->with('category')->where(['category_id' => $id]),
+            'pagination' => [
+                'pageSize' => 12,
+            ],
+        ]);
+
+        return $this->render('category', [
+            'category' => $category,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 }
+
+
+
+
+           
+
+
+
+
+
+  
+ 

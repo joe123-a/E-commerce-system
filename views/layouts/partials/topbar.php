@@ -12,7 +12,7 @@ use yii\helpers\Url;
         </div>
         <div class="col-lg-4 text-center d-flex align-items-center justify-content-center">
             <small class="text-dark">Call Us:</small>
-            <a href="#" class="text-muted">(+012) 1234 567890</a>
+            <a href="#" class="text-muted">(+256) 77918 0592</a>
         </div>
         <div class="col-lg-4 text-center text-lg-end">
             <div class="d-inline-flex align-items-center" style="height: 45px;">
@@ -53,7 +53,7 @@ use yii\helpers\Url;
         <div class="col-md-4 col-lg-3 text-center text-lg-start">
             <div class="d-inline-flex align-items-center">
                 <a href="<?= Url::to(['site/index']) ?>" class="navbar-brand p-0">
-                    <h1 class="display-5 text-primary m-0"><i class="fas fa-shopping-bag text-secondary me-2"></i>Electro</h1>
+                    <h1 class="display-5 text-primary m-0"><i class="fas fa-shopping-bag text-secondary me-2"></i>Service Cops</h1>
                 </a>
             </div>
         </div>
