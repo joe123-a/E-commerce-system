@@ -1,6 +1,18 @@
 <?php
 use yii\helpers\Url;
+use yii\helpers\Html;
+
+// Fetch cart from session
+$session = Yii::$app->session;
+$cart = $session->get('cart', []);
+$totalItems = 0;
+$subtotal = 0.00;
+foreach ($cart as $item) {
+    $totalItems += $item['quantity'];
+    $subtotal += $item['price'] * $item['quantity'];
+}
 ?>
+
 <div class="container-fluid px-5 d-none border-bottom d-lg-block">
     <div class="row gx-0 align-items-center">
         <div class="col-lg-4 text-center text-lg-start mb-lg-0">
@@ -76,8 +88,18 @@ use yii\helpers\Url;
             <div class="d-inline-flex align-items-center">
                 <a href="<?= Url::to(['customer/compare']) ?>" class="text-muted d-flex align-items-center justify-content-center me-3"><span class="rounded-circle btn-md-square border"><i class="fas fa-random"></i></span></a>
                 <a href="<?= Url::to(['customer/wishlist']) ?>" class="text-muted d-flex align-items-center justify-content-center me-3"><span class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></span></a>
-                <a href="<?= Url::to(['customer/cart']) ?>" class="text-muted d-flex align-items-center justify-content-center"><span class="rounded-circle btn-md-square border"><i class="fas fa-shopping-cart"></i></span>
-                    <span class="text-dark ms-2">$0.00</span></a>
+                <a href="<?= Url::to(['cart/index']) ?>" class="text-muted d-flex align-items-center justify-content-center">
+                    <span class="rounded-circle btn-md-square border position-relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <?php if ($totalItems > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                <?= $totalItems ?>
+                                <span class="visually-hidden">items in cart</span>
+                            </span>
+                        <?php endif; ?>
+                    </span>
+                    <span class="text-dark ms-2">$<?= number_format($subtotal, 2) ?></span>
+                </a>
             </div>
         </div>
     </div>

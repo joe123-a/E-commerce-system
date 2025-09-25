@@ -32,15 +32,15 @@ use yii\helpers\Url;
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
                         <a href="<?= Url::to(['site/index']) ?>" class="nav-item nav-link active">Home</a>
-                        <a href="<?= Url::to(['shop/index']) ?>" class="nav-item nav-link">Shop</a>
-                        <a href="<?= Url::to(['product/single']) ?>" class="nav-item nav-link">Single Page</a>
+                        <a href="<?= Url::to(['site/shop']) ?>" class="nav-item nav-link">Shop</a>
+                        <a href="<?= Url::to(['site/single']) ?>" class="nav-item nav-link">Single Page</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu m-0">
                                 <a href="<?= Url::to(['product/bestseller']) ?>" class="dropdown-item">Bestseller</a>
                                 <a href="<?= Url::to(['cart/index']) ?>" class="dropdown-item">Cart Page</a>
-                                <a href="<?= Url::to(['checkout/index']) ?>" class="dropdown-item">Checkout</a>
-                                <a href="<?= Url::to(['site/error']) ?>" class="dropdown-item">404 Page</a>
+                                <a href="<?= Url::to(['cart/checkout']) ?>" class="dropdown-item">Checkout</a>
+                                <a href="<?= Url::to(['site/404']) ?>" class="dropdown-item">404 Page</a>
                             </div>
                         </div>
                         <a href="<?= Url::to(['site/contact']) ?>" class="nav-item nav-link me-2">Contact</a>

@@ -129,17 +129,62 @@ class SiteController extends Controller
     {
         return $this->render('support');
     }
-    public function actionCart(){
-        return $this->render('cart');
-    }
+    
     public function actionCheckout(){
         return $this->render('checkout');
     }
-    public function actionShop(){
-        return $this->render('shop');
+    public function actionShop()
+{
+    $query = Products::find()->with('category');
+    $categoryId = Yii::$app->request->get('category_id');
+    $sort = Yii::$app->request->get('sort', 'default');
+    $price = (float) Yii::$app->request->get('price', 500);
+
+    if ($categoryId) {
+        $query->andWhere(['category_id' => $categoryId]);
     }
-    public function actionSingle(){
-        return $this->render('single');
+    if ($price < 500) {
+        $query->andWhere(['<=', 'discount_price', $price])->orWhere(['<=', 'price', $price]);
+    }
+
+    switch ($sort) {
+        case 'popularity':
+            $query->orderBy(['is_top_selling' => SORT_DESC]);
+            break;
+        case 'newness':
+            $query->orderBy(['is_new' => SORT_DESC]);
+            break;
+        case 'low-to-high':
+            $query->orderBy(['price' => SORT_ASC]);
+            break;
+        case 'high-to-low':
+            $query->orderBy(['price' => SORT_DESC]);
+            break;
+        default:
+            $query->orderBy(['id' => SORT_ASC]);
+    }
+
+    $dataProvider = new \yii\data\ActiveDataProvider([
+        'query' => $query,
+        'pagination' => [
+            'pageSize' => 9,
+        ],
+    ]);
+
+    return $this->render('shop', [
+        'dataProvider' => $dataProvider,
+    ]);
+}
+    public function actionSingle($id)
+    {
+        $product = Products::find()->with('category')->where(['id' => $id])->one();
+        if (!$product) {
+            throw new NotFoundHttpException('Product not found.');
+        }
+
+        return $this->render('single', [
+            'model' => $product,
+        ]);
     }
     public function action404(){
         return $this->render('404');
@@ -186,6 +231,8 @@ class SiteController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
+    
+
 }
 
 
@@ -198,4 +245,14 @@ class SiteController extends Controller
 
 
   
+
+
+
+  
  
+
+
+   
+
+
+    
