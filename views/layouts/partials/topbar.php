@@ -1,6 +1,10 @@
 <?php
 use yii\helpers\Url;
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+use app\models\User;
+
+/* @var $this yii\web\View */
 
 // Fetch cart from session
 $session = Yii::$app->session;
@@ -44,22 +48,140 @@ foreach ($cart as $item) {
                         <a href="#" class="dropdown-item">Italiano</a>
                     </div>
                 </div>
-                <div class="dropdown">
-                    <a href="#" class="dropdown-toggle text-muted ms-2" data-bs-toggle="dropdown"><small><i class="fa fa-home me-2"></i>My Dashboard</small></a>
-                    <div class="dropdown-menu rounded">
-                        <a href="<?= Url::to(['site/login']) ?>" class="dropdown-item">Login</a>
-                        <a href="<?= Url::to(['customer/wishlist']) ?>" class="dropdown-item">Wishlist</a>
-                        <a href="<?= Url::to(['customer/cart']) ?>" class="dropdown-item">My Card</a>
-                        <a href="<?= Url::to(['customer/notifications']) ?>" class="dropdown-item">Notifications</a>
-                        <a href="<?= Url::to(['customer/settings']) ?>" class="dropdown-item">Account Settings</a>
-                        <a href="<?= Url::to(['customer/account']) ?>" class="dropdown-item">My Account</a>
-                        <a href="<?= Url::to(['site/logout']) ?>" class="dropdown-item">Log Out</a>
-                    </div>
-                </div>
+        <div class="dropdown">
+                  <a href="#" class="dropdown-toggle text-muted ms-2" data-bs-toggle="dropdown">
+                   <small><i class="fa fa-home me-2"></i>
+                        <?php if (Yii::$app->user->isGuest): ?>
+                                My Dashboard
+                          <?php else: ?>
+                                 <?= Html::encode(Yii::$app->user->identity->username) ?>
+                                <?php endif; ?>
+                                 </small>
+                                   </a>
+                                 <div class="dropdown-menu rounded">
+        <?php if (Yii::$app->user->isGuest): ?>
+            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</a>
+        <?php else: ?>
+            <a href="<?= Url::to(['site/dashboard']) ?>" class="dropdown-item">Dashboard</a>
+            <a href="<?= Url::to(['customer/wishlist']) ?>" class="dropdown-item">Wishlist</a>
+            <a href="<?= Url::to(['customer/cart']) ?>" class="dropdown-item">My Cart</a>
+            <a href="<?= Url::to(['customer/notifications']) ?>" class="dropdown-item">Notifications</a>
+            <a href="<?= Url::to(['customer/settings']) ?>" class="dropdown-item">Account Settings</a>
+            <a href="<?= Url::to(['customer/account']) ?>" class="dropdown-item">My Account</a>
+            <a href="<?= Url::to(['site/logout']) ?>" class="dropdown-item" data-method="post">Log Out</a>
+        <?php endif; ?>
+        </div>
+</div>
+
             </div>
         </div>
     </div>
 </div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-primary" id="loginModalLabel">Log In to Your Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <?php
+                $model = new User(['scenario' => 'login']);
+                $form = ActiveForm::begin([
+                    'id' => 'login-form',
+                    'action' => Url::to(['site/login']),
+                ]);
+                ?>
+                <?php if (Yii::$app->session->hasFlash('error')): ?>
+                    <div class="alert alert-danger">
+                        <?= Yii::$app->session->getFlash('error') ?>
+                    </div>
+                <?php endif; ?>
+                <div class="form-group row mb-3">
+                    <label class="col-lg-4 col-form-label">Username</label>
+                    <div class="col-lg-8">
+                        <?= $form->field($model, 'username')->textInput(['maxlength' => true, 'placeholder' => 'Enter your username', 'class' => 'form-control'])->label(false) ?>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label class="col-lg-4 col-form-label">Password</label>
+                    <div class="col-lg-8">
+                        <?= $form->field($model, 'password')->passwordInput(['maxlength' => true, 'placeholder' => 'Enter your password', 'class' => 'form-control'])->label(false) ?>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <?= Html::submitButton('Log In', ['class' => 'btn btn-primary rounded-pill py-2 px-4', 'name' => 'login-button']) ?>
+                </div>
+                <div class="text-center mt-3">
+                    <p>Don't have an account? <a href="<?= Url::to(['site/signup']) ?>" class="text-primary">Sign Up</a></p>
+                </div>
+                <?php ActiveForm::end(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Signup Modal -->
+<!-- Signup Modal -->
+<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-primary" id="signupModalLabel">Create Your Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <?php
+                $model = new User(['scenario' => 'register']);
+                $form = ActiveForm::begin([
+                    'id' => 'signup-form-modal',
+                    'action' => Url::to(['site/signup']),
+                ]);
+                ?>
+                <?php if (Yii::$app->session->hasFlash('error')): ?>
+                    <div class="alert alert-danger">
+                        <?= Yii::$app->session->getFlash('error') ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (Yii::$app->session->hasFlash('success')): ?>
+                    <div class="alert alert-success">
+                        <?= Yii::$app->session->getFlash('success') ?>
+                    </div>
+                <?php endif; ?>
+                <div class="form-group row mb-3">
+                    <label class="col-lg-4 col-form-label">Username</label>
+                    <div class="col-lg-8">
+                        <?= $form->field($model, 'username')->textInput(['maxlength' => true, 'placeholder' => 'Enter your username', 'class' => 'form-control'])->label(false) ?>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label class="col-lg-4 col-form-label">Email</label>
+                    <div class="col-lg-8">
+                        <?= $form->field($model, 'email')->textInput(['maxlength' => true, 'placeholder' => 'Enter your email', 'class' => 'form-control'])->label(false) ?>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label class="col-lg-4 col-form-label">Password</label>
+                    <div class="col-lg-8">
+                        <?= $form->field($model, 'password')->passwordInput(['maxlength' => true, 'placeholder' => 'Enter your password (min 6 chars)', 'class' => 'form-control'])->label(false) ?>
+                    </div>
+                </div>
+                <!-- Removed confirm password field -->
+                <div class="form-group text-center">
+                    <?= Html::submitButton('Sign Up', ['class' => 'btn btn-primary rounded-pill py-2 px-4', 'name' => 'signup-button']) ?>
+                </div>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="#" class="text-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Log In</a></p>
+                </div>
+                <?php ActiveForm::end(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid px-5 py-4 d-none d-lg-block">
     <div class="row gx-0 align-items-center text-center">
         <div class="col-md-4 col-lg-3 text-center text-lg-start">

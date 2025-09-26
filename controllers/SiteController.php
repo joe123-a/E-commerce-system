@@ -12,6 +12,7 @@ use app\models\ContactForm;
 use app\models\Products;
 use app\models\Categories;
 use yii\data\ActiveDataProvider;
+use app\models\User;
 
 class SiteController extends Controller
 {
@@ -80,28 +81,39 @@ class SiteController extends Controller
     
 
 
-    public function actionLogin()
-    {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
-
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+  public function actionLogin()
+{
+    if (!Yii::$app->user->isGuest) {
+        return $this->goHome(); // redirect if already logged in
     }
 
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-        return $this->goHome();
+    $model = new \app\models\User(['scenario' => 'login']); // customer login scenario
+
+    if ($model->load(Yii::$app->request->post())) {
+        // Find user with role = 'customer'
+        $user = \app\models\User::findOne(['username' => $model->username, 'role' => 'customer', 'status' => 1]);
+        if ($user && $user->validatePassword($model->password)) {
+            Yii::$app->user->login($user); // login as customer
+            return $this->goBack(); // redirect after login
+        } else {
+            Yii::$app->session->setFlash('error', 'Invalid username or password.');
+        }
     }
+
+    $model->password = ''; // clear password field
+
+    return $this->render('login', [
+        'model' => $model,
+    ]);
+}
+
+
+   public function actionLogout()
+{
+    Yii::$app->user->logout(); // logs out the current user (customer)
+    return $this->goHome();     // redirect to homepage
+}
+
 
     public function actionContact()
     {
@@ -189,9 +201,7 @@ class SiteController extends Controller
     public function action404(){
         return $this->render('404');
     }
-    public function actionBestseller(){
-        return $this->render('bestseller');
-    }
+    
     public function actionProduct($id)
     {
         $model = Products::find()->with('category')->where(['id' => $id])->one();
@@ -231,7 +241,44 @@ class SiteController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
-    
+   
+     
+    public function actionBestseller()
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Products::find()
+                ->with('category')
+                ->orderBy(['sales_count' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 12,
+            ],
+        ]);
+
+        return $this->render('bestseller', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+public function actionSignup()
+{
+    $model = new User();
+    $model->scenario = 'register';
+
+    if ($model->load(Yii::$app->request->post())) {
+        if ($model->validate()) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Registration successful! You can now log in.');
+                return $this->redirect(['login']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Registration failed during save.');
+            }
+        } else {
+            Yii::$app->session->setFlash('error', 'Please fix the validation errors.');
+        }
+    }
+
+    return $this->render('signup', ['model' => $model]);
+}
 
 }
 
@@ -248,8 +295,46 @@ class SiteController extends Controller
 
 
 
-  
+    
+    
+
+    /**
+     * Customer login action.
+    
+    */
+    // public function actionLogin()
+    // {
+    //     if (!Yii::$app->user->isGuest) {
+    //         return $this->redirect(['dashboard']);
+    //     }
+
+    //     $model = new User(['scenario' => 'login']);
+    //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+    //         $user = User::findByUsername($model->username);
+    //         if ($user && $user->validatePassword($model->password)) {
+    //             Yii::$app->user->login($user);
+    //             return $this->redirect(['dashboard']);
+    //         } else {
+    //             Yii::$app->session->setFlash('error', 'Invalid username or password.');
+    //         }
+    //     }
+
+    //     return $this->render('login', [
+    //         'model' => $model,
+    //     ]);
+    // }
+
+
+    
  
+
+
+  
+
+
+
+
+
 
 
    

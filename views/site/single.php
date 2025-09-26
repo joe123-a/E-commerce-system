@@ -12,6 +12,10 @@ $categoryList = array_map(function($category) {
     return ['name' => $category['name'], 'count' => Products::find()->where(['category_id' => $category['id']])->count()];
 }, $categories);
 
+// Define CSRF token and cart add URL as PHP variables first
+$csrfToken = Yii::$app->request->csrfToken;
+$cartAddUrl = Url::to(['cart/add']);
+
 // Register JavaScript for quantity input and Owl Carousel
 $this->registerJs(<<<JS
 $(document).ready(function() {
@@ -52,10 +56,10 @@ $(document).ready(function() {
         var productId = $(this).data('id');
         var quantity = parseInt($(this).closest('.single-product').find('.quantity input').val()) || 1;
         
-        $.post('<?= Url::to(['cart/add']) ?>', {
+        $.post('$cartAddUrl', { // Use the PHP variable here
             id: productId,
             quantity: quantity,
-            _csrf: '<?= Yii::$app->request->csrfToken ?>'
+            _csrf: '$csrfToken' // Use the PHP variable here
         }, function(response) {
             if (response.success) {
                 window.location.href = '<?= Url::to(['cart/index']) ?>';
@@ -198,7 +202,7 @@ JS
                         </div>
                         <div class="d-flex flex-column mb-3">
                             <small>Product SKU: <?= Html::encode($product->model) ?></small>
-                            <small>Available: <strong class="text-primary"><?= $product->stock ?> items in stock</strong></small>
+                            <small>Available: <strong class="text-primary"><?= $product->stock_quantity?> items in stock</strong></small>
                         </div>
                         <p class="mb-4"><?= Html::encode($product->description ?: 'The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic words etc.') ?></p>
                         <p class="mb-4"><?= Html::encode($product->description ? '' : 'Susp endisse ultricies nisi vel quam suscipit. Sabertooth peacock flounder; chain pickerel hatchetfish, pencilfish snailfish') ?></p>

@@ -82,4 +82,5 @@ class Products extends ActiveRecord
     {
         return $this->hasOne(Categories::class, ['id' => 'category_id']);
     }
+    
 }

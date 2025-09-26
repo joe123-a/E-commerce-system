@@ -13,6 +13,7 @@ $this->beginPage();
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
+     <?= Html::csrfMetaTags() ?> 
     <?php $this->head(); ?>
 </head>
 <body>

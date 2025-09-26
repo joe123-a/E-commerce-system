@@ -37,7 +37,7 @@ use yii\helpers\Url;
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu m-0">
-                                <a href="<?= Url::to(['product/bestseller']) ?>" class="dropdown-item">Bestseller</a>
+                                <a href="<?= Url::to(['site/bestseller']) ?>" class="dropdown-item">Bestseller</a>
                                 <a href="<?= Url::to(['cart/index']) ?>" class="dropdown-item">Cart Page</a>
                                 <a href="<?= Url::to(['cart/checkout']) ?>" class="dropdown-item">Checkout</a>
                                 <a href="<?= Url::to(['site/404']) ?>" class="dropdown-item">404 Page</a>
