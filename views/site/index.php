@@ -1,6 +1,8 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\data\ActiveDataProvider;
+use app\models\Products;
 
 /* @var $this yii\web\View */
 /* @var $allProducts array */
@@ -287,7 +289,7 @@ function renderStars($rating) {
                                                     <a href="#" class="text-primary d-flex align-items-center justify-content-center me-3">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-random"></i></span>
                                                     </a>
-                                                    <a href="<?= Url::to(['wishlist/add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
+                                                    <a href="<?= Url::to(['site/wishlist-add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-heart"></i></span>
                                                     </a>
                                                 </div>
@@ -353,7 +355,7 @@ function renderStars($rating) {
                                                     <a href="#" class="text-primary d-flex align-items-center justify-content-center me-3">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-random"></i></span>
                                                     </a>
-                                                    <a href="<?= Url::to(['wishlist/add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
+                                                    <a href="<?= Url::to(['site/wishlist-add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-heart"></i></span>
                                                     </a>
                                                 </div>
@@ -419,7 +421,7 @@ function renderStars($rating) {
                                                     <a href="#" class="text-primary d-flex align-items-center justify-content-center me-3">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-random"></i></span>
                                                     </a>
-                                                    <a href="<?= Url::to(['wishlist/add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
+                                                    <a href="<?= Url::to(['site/wishlist-add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-heart"></i></span>
                                                     </a>
                                                 </div>
@@ -485,9 +487,12 @@ function renderStars($rating) {
                                                     <a href="#" class="text-primary d-flex align-items-center justify-content-center me-3">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-random"></i></span>
                                                     </a>
-                                                    <a href="<?= Url::to(['wishlist/add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
+                                                    <a href="<?= Url::to(['site/wishlist-add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0">
                                                         <span class="rounded-circle btn-sm-square border"><i class="fas fa-heart"></i></span>
                                                     </a>
+
+                                                    
+
                                                 </div>
                                             </div>
                                         </div>
@@ -502,3 +507,114 @@ function renderStars($rating) {
     </div>
 </div>
 <!-- Our Products End -->
+
+<!-- Product Banner Start -->
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Banner 1 -->
+            <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
+                <a href="<?= Url::to(['site/single', 'id' => 3]) ?>">
+                    <div class="bg-primary rounded position-relative">
+                        <?= Html::img('@web/img/product-banner.jpg', [
+                            'class' => 'img-fluid w-100 rounded',
+                            'alt' => 'EOS Rebel T7i Kit'
+                        ]) ?>
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
+                             style="background: rgba(255, 255, 255, 0.5);">
+                            <h3 class="display-5 text-primary">EOS Rebel <br> <span>T7i Kit</span></h3>
+                            <p class="fs-4 text-muted">$899.99</p>
+                            <a href="<?= Url::to(['site/single', 'id' => 3]) ?>" class="btn btn-primary rounded-pill align-self-start py-2 px-4">Shop Now</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Banner 2 -->
+            <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.2s">
+                <a href="<?= Url::to(['site/shop']) ?>">
+                    <div class="text-center bg-primary rounded position-relative">
+                        <?= Html::img('@web/img/product-banner-2.jpg', [
+                            'class' => 'img-fluid w-100',
+                            'alt' => 'Sale Banner'
+                        ]) ?>
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
+                             style="background: rgba(242, 139, 0, 0.5);">
+                            <h2 class="display-2 text-secondary">SALE</h2>
+                            <h4 class="display-5 text-white mb-4">Get Up To 50% Off</h4>
+                            <a href="<?= Url::to(['site/shop']) ?>" class="btn btn-secondary rounded-pill align-self-center py-2 px-4">Shop Now</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Product Banner End -->
+
+<!-- Product List Start -->
+<div class="container-fluid products productList overflow-hidden">
+    <div class="container products-mini py-5">
+        <div class="mx-auto text-center mb-5" style="max-width: 900px;">
+            <h4 class="text-primary border-bottom border-primary border-2 d-inline-block p-2 title-border-radius wow fadeInUp"
+                data-wow-delay="0.1s">Products</h4>
+            <h1 class="mb-0 display-3 wow fadeInUp" data-wow-delay="0.3s">All Product Items</h1>
+        </div>
+        <div class="productList-carousel owl-carousel pt-4 wow fadeInUp" data-wow-delay="0.3s">
+            <?php
+            $carouselProvider = new ActiveDataProvider([
+                'query' => Products::find()->with('category')->orderBy(['sales_count' => SORT_DESC]),
+                'pagination' => ['pageSize' => 12],
+            ]);
+            foreach ($carouselProvider->getModels() as $index => $product):
+            ?>
+                <div class="productImg-item products-mini-item border">
+                    <div class="row g-0">
+                        <div class="col-5">
+                            <div class="products-mini-img border-end h-100">
+                                <?php
+                                $imagePath = $product->image_path && file_exists(Yii::getAlias('@webroot') . '/' . $product->image_path)
+                                    ? Yii::getAlias('@web') . '/' . $product->image_path
+                                    : Yii::getAlias('@web') . '/images/no-image.jpg';
+                                ?>
+                                <?= Html::img($imagePath, [
+                                    'class' => 'img-fluid w-100 h-100',
+                                    'alt' => Html::encode($product->name)
+                                ]) ?>
+                                <div class="products-mini-icon rounded-circle bg-primary">
+                                    <a href="<?= Url::to(['site/single', 'id' => $product->id]) ?>"><i class="fa fa-eye fa-1x text-white"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="products-mini-content p-3">
+                                <a href="<?= Url::to(['site/single', 'id' => $product->id]) ?>" class="d-block mb-2"><?= Html::encode($product->category->name ?? 'Electronics') ?></a>
+                                <a href="<?= Url::to(['site/single', 'id' => $product->id]) ?>" class="d-block h4"><?= Html::encode($product->name) ?> <br> <?= Html::encode($product->model) ?></a>
+                                <?php if ($product->discount_price && $product->discount_price < $product->price): ?>
+                                    <del class="me-2 fs-5">$<?= number_format($product->price, 2) ?></del>
+                                    <span class="text-primary fs-5">$<?= number_format($product->discount_price, 2) ?></span>
+                                <?php else: ?>
+                                    <span class="text-primary fs-5">$<?= number_format($product->price, 2) ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="products-mini-add border p-3">
+                        <a href="#" class="btn btn-primary border-secondary rounded-pill py-2 px-4 add-to-cart" data-id="<?= $product->id ?>"><i
+                                class="fas fa-shopping-cart me-2"></i> Add To Cart</a>
+                        <div class="d-flex">
+                            <a href="<?= Url::to(['compare/add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-3"><span
+                                    class="rounded-circle btn-sm-square border"><i class="fas fa-random"></i></span></a>
+                            <a href="<?= Url::to(['site/wishlist-add', 'id' => $product->id]) ?>" class="text-primary d-flex align-items-center justify-content-center me-0"><span
+                                    class="rounded-circle btn-sm-square border"><i class="fas fa-heart"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<!-- Product List End -->
+
+
+
+

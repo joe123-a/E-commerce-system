@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Url;
+use yii\helpers\Html;
 ?>
 <div class="container-fluid nav-bar p-0">
     <div class="row gx-0 bg-primary px-5 align-items-center">
@@ -10,13 +11,19 @@ use yii\helpers\Url;
                 </button>
                 <div class="collapse navbar-collapse rounded-bottom" id="allCat">
                     <div class="navbar-nav ms-auto py-0">
-                        <ul class="list-unstyled categories-bars">
-                            <li><div class="categories-bars-item"><a href="<?= Url::to(['category/accessories']) ?>">Accessories</a><span>(3)</span></div></li>
-                            <li><div class="categories-bars-item"><a href="<?= Url::to(['category/electronics']) ?>">Electronics & Computer</a><span>(5)</span></div></li>
-                            <li><div class="categories-bars-item"><a href="<?= Url::to(['category/laptops']) ?>">Laptops & Desktops</a><span>(2)</span></div></li>
-                            <li><div class="categories-bars-item"><a href="<?= Url::to(['category/mobiles']) ?>">Mobiles & Tablets</a><span>(8)</span></div></li>
-                            <li><div class="categories-bars-item"><a href="<?= Url::to(['category/smartphones']) ?>">SmartPhone & Smart TV</a><span>(5)</span></div></li>
-                        </ul>
+                       <ul class="list-unstyled categories-bars">
+    <?php foreach (Yii::$app->view->params['categories'] as $cat): ?>
+        <li>
+            <div class="categories-bars-item d-flex justify-content-between">
+                <a href="<?= Url::to(['site/category', 'id' => $cat->id]) ?>">
+                    <?= Html::encode($cat->name) ?>
+                </a>
+                <span>(<?= $cat->product_count ?>)</span>
+            </div>
+        </li>
+    <?php endforeach; ?>
+</ul>
+
                     </div>
                 </div>
             </nav>
@@ -44,18 +51,26 @@ use yii\helpers\Url;
                             </div>
                         </div>
                         <a href="<?= Url::to(['site/contact']) ?>" class="nav-item nav-link me-2">Contact</a>
-                        <div class="nav-item dropdown d-block d-lg-none mb-3">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">All Category</a>
-                            <div class="dropdown-menu m-0">
-                                <ul class="list-unstyled categories-bars">
-                                    <li><div class="categories-bars-item"><a href="<?= Url::to(['category/accessories']) ?>">Accessories</a><span>(3)</span></div></li>
-                                    <li><div class="categories-bars-item"><a href="<?= Url::to(['category/electronics']) ?>">Electronics & Computer</a><span>(5)</span></div></li>
-                                    <li><div class="categories-bars-item"><a href="<?= Url::to(['category/laptops']) ?>">Laptops & Desktops</a><span>(2)</span></div></li>
-                                    <li><div class="categories-bars-item"><a href="<?= Url::to(['category/mobiles']) ?>">Mobiles & Tablets</a><span>(8)</span></div></li>
-                                    <li><div class="categories-bars-item"><a href="<?= Url::to(['category/smartphones']) ?>">SmartPhone & Smart TV</a><span>(5)</span></div></li>
-                                </ul>
-                            </div>
-                        </div>
+                          <div class="nav-item dropdown d-block d-lg-none mb-3">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">All Category</a>
+    <div class="dropdown-menu m-0">
+        <ul class="list-unstyled categories-bars mb-0">
+            <?php foreach (Yii::$app->view->params['categories'] as $cat): ?>
+                <li>
+                    <div class="categories-bars-item d-flex justify-content-between">
+                        <a href="<?= Url::to(['site/category', 'id' => $cat->id]) ?>">
+                            <?= Html::encode($cat->name) ?>
+                        </a>
+                        <span>(<?= $cat->product_count ?>)</span>
+
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+</div>
+
+
                     </div>
                     <a href="tel:+01234567890" class="btn btn-secondary rounded-pill py-2 px-4 px-lg-3 mb-3 mb-md-3 mb-lg-0"><i class="fa fa-mobile-alt me-2"></i> +0123 456 7890</a>
                 </div>

@@ -76,24 +76,25 @@ JS
                     <td colspan="6" class="text-center py-4">Your cart is empty.</td>
                 </tr>
             <?php else: ?>
-                <?php foreach ($cartItems as $id => $item): ?>
-                    <tr>
-                        <td><?= Html::encode($item['name']) ?></td>
-                        <td><?= Html::encode($item['model']) ?></td>
-                        <td class="price"><p class="mb-0"><?= number_format($item['price'], 2) ?> $</p></td>
-                        <td>
-                            <div class="input-group quantity" style="width: 100px;">
-                                <button class="btn btn-sm btn-minus" data-id="<?= $id ?>">-</button>
-                                <input type="text" class="form-control text-center" value="<?= $item['quantity'] ?>">
-                                <button class="btn btn-sm btn-plus" data-id="<?= $id ?>">+</button>
-                            </div>
-                        </td>
-                        <td class="total"><p class="mb-0"><?= number_format($item['price'] * $item['quantity'], 2) ?> $</p></td>
-                        <td>
-                            <a href="<?= Url::to(['cart/remove', 'id' => $id]) ?>" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php foreach ($cartItems as $item): ?>
+    <tr>
+        <td><?= Html::encode($item->product->name) ?></td>
+        <td><?= Html::encode($item->product->model) ?></td>
+        <td class="price"><p class="mb-0"><?= number_format($item->product->price, 2) ?> $</p></td>
+        <td>
+            <div class="input-group quantity" style="width: 100px;">
+                <button class="btn btn-sm btn-minus" data-id="<?= $item->id ?>">-</button>
+                <input type="text" class="form-control text-center" value="<?= $item->quantity ?>">
+                <button class="btn btn-sm btn-plus" data-id="<?= $item->id ?>">+</button>
+            </div>
+        </td>
+        <td class="total"><p class="mb-0"><?= number_format($item->quantity * $item->product->price, 2) ?> $</p></td>
+        <td>
+            <a href="<?= Url::to(['cart/remove', 'id' => $item->id]) ?>" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+        </td>
+    </tr>
+<?php endforeach; ?>
+
             <?php endif; ?>
             </tbody>
         </table>

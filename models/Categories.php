@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 
 class Categories extends ActiveRecord
 {
+    public $product_count; 
     public static function tableName()
     {
         return 'categories';

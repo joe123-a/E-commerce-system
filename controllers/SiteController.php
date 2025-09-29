@@ -13,6 +13,7 @@ use app\models\Products;
 use app\models\Categories;
 use yii\data\ActiveDataProvider;
 use app\models\User;
+use app\models\Wishlist;
 
 class SiteController extends Controller
 {
@@ -279,6 +280,64 @@ public function actionSignup()
 
     return $this->render('signup', ['model' => $model]);
 }
+
+public function actionWishlist()
+    {
+        $wishlistProvider = new ActiveDataProvider([
+            'query' => Wishlist::find()->where(['user_id' => Yii::$app->user->id])->with('product'),
+            'pagination' => ['pageSize' => 12],
+        ]);
+
+        return $this->render('wishlist', [
+            'wishlistProvider' => $wishlistProvider,
+        ]);
+    }
+
+    public function actionWishlistAdd($id)
+    {
+        $wishlist = new Wishlist();
+        $wishlist->user_id = Yii::$app->user->id;
+        $wishlist->product_id = $id;
+
+        if ($wishlist->save()) {
+            Yii::$app->session->setFlash('success', 'Product added to wishlist.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to add product to wishlist.');
+        }
+
+        return $this->redirect(Yii::$app->request->referrer ?: ['site/index']);
+    }
+
+    public function actionWishlistRemove($id)
+    {
+        $wishlist = Wishlist::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
+        if ($wishlist && $wishlist->delete()) {
+            Yii::$app->session->setFlash('success', 'Product removed from wishlist.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to remove product from wishlist.');
+        }
+
+        return $this->redirect(['wishlist']);
+    }
+    public function beforeAction($action)
+{
+    if (!parent::beforeAction($action)) {
+        return false;
+    }
+
+    // Fetch categories with product counts
+    $categories = Categories::find()
+        ->select(['categories.*', 'COUNT(products.id) AS product_count'])
+        ->leftJoin('products', 'products.category_id = categories.id')
+        ->groupBy('categories.id')
+        ->all();
+
+    // Make categories available to all views via layout/partials
+    \Yii::$app->view->params['categories'] = $categories;
+
+    return true;
+}
+
 
 }
 

@@ -7,6 +7,9 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 use app\models\Products;
 use app\models\OrderForm;
+use app\models\Cart;
+use yii\web\Response;
+
 
 class CartController extends Controller
 {
@@ -16,128 +19,162 @@ class CartController extends Controller
      * Add a product to the cart.
      */
     public function actionAdd($id)
-    {
-        $session = Yii::$app->session;
-        if (!$session->has('cart')) {
-            $session->set('cart', []);
-        }
+{
+    if (Yii::$app->user->isGuest) {
+        Yii::$app->session->setFlash('error', 'You need to login first.');
+        return $this->redirect(['site/login']);
+    }
 
-        $product = Products::findOne($id);
-        if (!$product) {
-            Yii::$app->session->setFlash('error', 'Product not found.');
-            return $this->redirect(Yii::$app->request->referrer ?: ['site/index']);
-        }
+    $userId = Yii::$app->user->id;
+    $product = Products::findOne($id);
 
-        $cart = $session->get('cart');
-        $productId = $product->id;
-
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += 1;
-        } else {
-            $cart[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'model' => $product->model,
-                'price' => $product->discount_price && $product->discount_price < $product->price
-                    ? $product->discount_price
-                    : $product->price,
-                'quantity' => 1,
-            ];
-        }
-
-        $session->set('cart', $cart);
-        Yii::$app->session->setFlash('success', 'Product "' . Html::encode($product->name) . '" added to cart.');
-
+    if (!$product) {
+        Yii::$app->session->setFlash('error', 'Product not found.');
         return $this->redirect(Yii::$app->request->referrer ?: ['site/index']);
     }
+
+    // Check if item already in cart
+    $cartItem = Cart::find()->where([
+        'user_id' => $userId,
+        'product_id' => $product->id
+    ])->one();
+
+    if ($cartItem) {
+        $cartItem->quantity += 1; // increment quantity
+        $cartItem->save();
+    } else {
+        $cartItem = new Cart();
+        $cartItem->user_id = $userId;
+        $cartItem->product_id = $product->id;
+        $cartItem->quantity = 1;
+        $cartItem->price = $product->discount_price && $product->discount_price < $product->price
+            ? $product->discount_price
+            : $product->price;
+        $cartItem->save();
+    }
+
+    Yii::$app->session->setFlash('success', 'Product "' . Html::encode($product->name) . '" added to cart.');
+    return $this->redirect(Yii::$app->request->referrer ?: ['site/index']);
+}
+
 
     /**
      * Display the cart page.
      */
-    public function actionIndex()
-    {
-        $session = Yii::$app->session;
-        if (!$session->has('cart')) {
-            $session->set('cart', []);
-        }
+ 
 
-        $cartItems = $session->get('cart', []);
-        $subtotal = 0;
-        foreach ($cartItems as $item) {
-            $subtotal += $item['price'] * $item['quantity'];
-        }
-
-        $shipping = 3.00;
-        $total = $subtotal + $shipping;
-
-        return $this->render('index', [
-            'cartItems' => $cartItems,
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'total' => $total,
-        ]);
+public function actionIndex()
+{
+    if (Yii::$app->user->isGuest) {
+        Yii::$app->session->setFlash('error', 'Please log in to view your cart.');
+        return $this->redirect(['site/login']);
     }
+
+    $cartItems = Cart::find()
+        ->where(['user_id' => Yii::$app->user->id])
+        ->with('product') // load related product
+        ->all();
+
+    $subtotal = 0;
+    foreach ($cartItems as $item) {
+        $subtotal += $item->quantity * $item->product->price;
+    }
+
+    $shipping = 3.00;
+    $total = $subtotal + $shipping;
+
+    return $this->render('index', [
+        'cartItems' => $cartItems,
+        'subtotal' => $subtotal,
+        'shipping' => $shipping,
+        'total' => $total,
+    ]);
+}
+
+
 
     /**
      * Update quantity of a product in the cart.
      */
-    public function actionUpdateQuantity()
-    {
-        if (Yii::$app->request->isPost) {
-            $productId = Yii::$app->request->post('productId');
-            $quantity = (int) Yii::$app->request->post('quantity');
+ 
 
-            $session = Yii::$app->session;
-            $cart = $session->get('cart', []);
+    
+   public function actionRemove($id)
+{
+    // Find the cart item for the current user
+    $cartItem = Cart::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
 
-            if (isset($cart[$productId]) && $quantity > 0) {
-                $cart[$productId]['quantity'] = $quantity;
-                $session->set('cart', $cart);
-                return $this->asJson(['success' => true]);
-            }
-            return $this->asJson(['success' => false, 'message' => 'Invalid product or quantity']);
-        }
-        return $this->asJson(['success' => false, 'message' => 'Invalid request']);
+    if ($cartItem) {
+        $cartItem->delete();  // remove from database
+        Yii::$app->session->setFlash('success', 'Product removed from cart.');
+    } else {
+        Yii::$app->session->setFlash('error', 'Product not found in your cart.');
     }
 
-    /**
-     * Remove a product from the cart.
-     */
-    public function actionRemove($id)
-    {
-        $session = Yii::$app->session;
-        $cart = $session->get('cart', []);
-
-        if (isset($cart[$id])) {
-            unset($cart[$id]);
-            $session->set('cart', $cart);
-            Yii::$app->session->setFlash('success', 'Product removed from cart.');
-        } else {
-            Yii::$app->session->setFlash('error', 'Product not found in cart.');
-        }
-
-        return $this->redirect(['index']);
-    }
+    return $this->redirect(['index']); // back to cart page
+}
     /**
      * Display the checkout page.
      */
-    public function actionCheckout()
-    {
-        $session = Yii::$app->session;
-        $cartItems = $session->get('cart', []);
 
-        if (empty($cartItems)) {
-            Yii::$app->session->setFlash('error', 'Your cart is empty.');
-            return $this->redirect(['index']);
-        }
 
-        $model = new OrderForm();
-
-        return $this->render('checkout', [
-            'model' => $model,
-            'cartItems' => $cartItems,
-        ]);
+public function actionCheckout()
+{
+    if (Yii::$app->user->isGuest) {
+        Yii::$app->session->setFlash('error', 'Please log in to checkout.');
+        return $this->redirect(['site/login']);
     }
+
+    // Fetch cart items from DB
+    $cartItems = Cart::find()
+        ->where(['user_id' => Yii::$app->user->id])
+        ->with('product') // Make sure your Cart model has getProduct()
+        ->all();
+
+    if (empty($cartItems)) {
+        Yii::$app->session->setFlash('error', 'Your cart is empty.');
+        return $this->redirect(['index']);
+    }
+
+    $subtotal = 0;
+    foreach ($cartItems as $item) {
+        $subtotal += $item->quantity * $item->product->price;
+    }
+
+    $shipping = 3.00;
+    $total = $subtotal + $shipping;
+
+    $model = new OrderForm();
+
+    return $this->render('checkout', [
+        'model' => $model,
+        'cartItems' => $cartItems,
+        'subtotal' => $subtotal,
+        'shipping' => $shipping,
+        'total' => $total,
+    ]);
+}
+
+public function actionUpdateQuantity()
+{
+    Yii::$app->response->format = Response::FORMAT_JSON;
+
+    $productId = Yii::$app->request->post('productId');
+    $quantity = Yii::$app->request->post('quantity');
+
+    if (!$productId || !$quantity) {
+        return ['success' => false, 'message' => 'Invalid request.'];
+    }
+
+    $cartItem = Cart::findOne(['id' => $productId, 'user_id' => Yii::$app->user->id]);
+    if ($cartItem) {
+        $cartItem->quantity = (int)$quantity;
+        $cartItem->save();
+        return ['success' => true, 'message' => 'Quantity updated.'];
+    }
+
+    return ['success' => false, 'message' => 'Item not found in cart.'];
+}
 }
 
 

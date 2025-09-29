@@ -1,20 +1,28 @@
 <?php
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
+use app\models\Cart;
+use app\models\Products;
 use app\models\User;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
-/* @var $this yii\web\View */
+$userId = Yii::$app->user->id;
 
-// Fetch cart from session
-$session = Yii::$app->session;
-$cart = $session->get('cart', []);
 $totalItems = 0;
-$subtotal = 0.00;
-foreach ($cart as $item) {
-    $totalItems += $item['quantity'];
-    $subtotal += $item['price'] * $item['quantity'];
+$subtotal = 0.0;
+
+if (!Yii::$app->user->isGuest) {
+    $cartItems = Cart::find()
+        ->with('product')  // Make sure Cart model has getProduct()
+        ->where(['user_id' => $userId])
+        ->all();
+
+    foreach ($cartItems as $item) {
+        $totalItems += $item->quantity;
+        $subtotal += $item->quantity * $item->product->price; // or $item->price if stored in cart
+    }
 }
+
 ?>
 
 <div class="container-fluid px-5 d-none border-bottom d-lg-block">
@@ -64,7 +72,7 @@ foreach ($cart as $item) {
             <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</a>
         <?php else: ?>
             <a href="<?= Url::to(['site/dashboard']) ?>" class="dropdown-item">Dashboard</a>
-            <a href="<?= Url::to(['customer/wishlist']) ?>" class="dropdown-item">Wishlist</a>
+            <a href="<?= Url::to(['site/wishlist']) ?>" class="dropdown-item">Wishlist</a>
             <a href="<?= Url::to(['customer/cart']) ?>" class="dropdown-item">My Cart</a>
             <a href="<?= Url::to(['customer/notifications']) ?>" class="dropdown-item">Notifications</a>
             <a href="<?= Url::to(['customer/settings']) ?>" class="dropdown-item">Account Settings</a>
@@ -196,12 +204,14 @@ foreach ($cart as $item) {
                 <div class="d-flex border rounded-pill">
                     <input class="form-control border-0 rounded-pill w-100 py-3" type="text" placeholder="Search Looking For?">
                     <select class="form-select text-dark border-0 border-start rounded-0 p-3" style="width: 200px;">
-                        <option value="All Category">All Category</option>
-                        <option value="Category 1">Category 1</option>
-                        <option value="Category 2">Category 2</option>
-                        <option value="Category 3">Category 3</option>
-                        <option value="Category 4">Category 4</option>
-                    </select>
+    <option value="">All Category</option>
+    <?php foreach (Yii::$app->view->params['categories'] as $cat): ?>
+        <option value="<?= $cat->id ?>">
+            <?= Html::encode($cat->name) ?> (<?= $cat->productCount ?>)
+        </option>
+    <?php endforeach; ?>
+</select>
+
                     <button type="button" class="btn btn-primary rounded-pill py-3 px-5" style="border: 0;"><i class="fas fa-search"></i></button>
                 </div>
             </div>
@@ -209,19 +219,20 @@ foreach ($cart as $item) {
         <div class="col-md-4 col-lg-3 text-center text-lg-end">
             <div class="d-inline-flex align-items-center">
                 <a href="<?= Url::to(['customer/compare']) ?>" class="text-muted d-flex align-items-center justify-content-center me-3"><span class="rounded-circle btn-md-square border"><i class="fas fa-random"></i></span></a>
-                <a href="<?= Url::to(['customer/wishlist']) ?>" class="text-muted d-flex align-items-center justify-content-center me-3"><span class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></span></a>
+                <a href="<?= Url::to(['site/wishlist']) ?>" class="text-muted d-flex align-items-center justify-content-center me-3"><span class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></span></a>
                 <a href="<?= Url::to(['cart/index']) ?>" class="text-muted d-flex align-items-center justify-content-center">
-                    <span class="rounded-circle btn-md-square border position-relative">
-                        <i class="fas fa-shopping-cart"></i>
-                        <?php if ($totalItems > 0): ?>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                                <?= $totalItems ?>
-                                <span class="visually-hidden">items in cart</span>
-                            </span>
-                        <?php endif; ?>
-                    </span>
-                    <span class="text-dark ms-2">$<?= number_format($subtotal, 2) ?></span>
-                </a>
+    <span class="rounded-circle btn-md-square border position-relative">
+        <i class="fas fa-shopping-cart"></i>
+        <?php if ($totalItems > 0): ?>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                <?= $totalItems ?>
+                <span class="visually-hidden">items in cart</span>
+            </span>
+        <?php endif; ?>
+    </span>
+    <span class="text-dark ms-2">$<?= number_format($subtotal, 2) ?></span>
+</a>
+
             </div>
         </div>
     </div>
